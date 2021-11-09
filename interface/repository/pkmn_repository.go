@@ -98,18 +98,20 @@ func (pr *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, erro
 		}
 
 		pokemon := &model.Pokemon{
-			ID:             id,
-			Name:           row[1],
-			PrimaryType:    row[2],
-			SecondaryType:  row[3],
-			Generation:     gen,
-			HP:             hp,
-			Attack:         atk,
-			Defense:        def,
-			SpecialAttack:  spa,
-			SpecialDefense: spd,
-			Speed:          spe,
-			BaseStatTotal:  bst,
+			ID:            id,
+			Name:          row[1],
+			PrimaryType:   row[2],
+			SecondaryType: row[3],
+			Generation:    gen,
+			Stats: model.Stats{
+				HP:             hp,
+				Attack:         atk,
+				Defense:        def,
+				SpecialAttack:  spa,
+				SpecialDefense: spd,
+				Speed:          spe,
+				BaseStatTotal:  bst,
+			},
 		}
 
 		p = append(p, pokemon)
@@ -191,18 +193,20 @@ func (pr *pokemonRepository) FindById(p *model.Pokemon, id string) (*model.Pokem
 		}
 
 		p = &model.Pokemon{
-			ID:             dataSourceId,
-			Name:           row[1],
-			PrimaryType:    row[2],
-			SecondaryType:  row[3],
-			Generation:     gen,
-			HP:             hp,
-			Attack:         atk,
-			Defense:        def,
-			SpecialAttack:  spa,
-			SpecialDefense: spd,
-			Speed:          spe,
-			BaseStatTotal:  bst,
+			ID:            dataSourceId,
+			Name:          row[1],
+			PrimaryType:   row[2],
+			SecondaryType: row[3],
+			Generation:    gen,
+			Stats: model.Stats{
+				HP:             hp,
+				Attack:         atk,
+				Defense:        def,
+				SpecialAttack:  spa,
+				SpecialDefense: spd,
+				Speed:          spe,
+				BaseStatTotal:  bst,
+			},
 		}
 
 		break
