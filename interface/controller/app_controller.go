@@ -1,5 +1,5 @@
 package controller
 
-type AppController interface {
-	PokemonController
+type AppController struct {
+	Pokemon interface{ PokemonController }
 }

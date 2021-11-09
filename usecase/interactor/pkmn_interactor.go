@@ -2,21 +2,20 @@ package interactor
 
 import (
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
-	"github.com/jvillarreal-w/academy-go-q42021/usecase/presenter"
 	"github.com/jvillarreal-w/academy-go-q42021/usecase/repository"
 )
 
 type pokemonInteractor struct {
 	PokemonRepository repository.PokemonRepository
-	PokemonPresenter  presenter.PokemonPresenter
 }
 
 type PokemonInteractor interface {
 	Get(p []*model.Pokemon) ([]*model.Pokemon, error)
+	GetById(p *model.Pokemon, id string) (*model.Pokemon, error)
 }
 
-func NewPokemonInteractor(r repository.PokemonRepository, p presenter.PokemonPresenter) PokemonInteractor {
-	return &pokemonInteractor{r, p}
+func NewPokemonInteractor(r repository.PokemonRepository) PokemonInteractor {
+	return &pokemonInteractor{r}
 }
 
 func (ps *pokemonInteractor) Get(p []*model.Pokemon) ([]*model.Pokemon, error) {
@@ -24,5 +23,13 @@ func (ps *pokemonInteractor) Get(p []*model.Pokemon) ([]*model.Pokemon, error) {
 	if err != nil {
 		return nil, err
 	}
-	return ps.PokemonPresenter.ResponsePokemon(p), nil
+	return p, nil
+}
+
+func (pi *pokemonInteractor) GetById(p *model.Pokemon, id string) (*model.Pokemon, error) {
+	p, err := pi.PokemonRepository.FindById(p, id)
+	if err != nil {
+		return nil, err
+	}
+	return p, nil
 }
