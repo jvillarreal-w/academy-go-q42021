@@ -1,10 +1,10 @@
-id,name
-1,Bulbasaur
-2,Ivysaur
-3,Venusaur
-4,Charmander
-5,Charmeleon
-6,Charizard
-7,Squirtle
-8,Wartortle
-9,Blastoise
+ID,Name,Primary Type,Secondary Type,Generation,HP,Attack,Defense,Special Attack,Special Defense,Speed,Base Stat Total
+1,Bulbasaur,Grass,Poison,1,45,49,49,65,65,45,318
+2,Ivysaur,Grass,Poison,1,60,62,63,80,80,60,405
+3,Venusaur,Grass,Poison,1,80,82,83,100,100,80,525
+4,Charmander,Fire,,1,39,52,43,60,50,65,309
+5,Charmeleon,Fire,,1,58,64,58,80,65,80,405
+6,Charizard,Fire,Flying,1,78,84,78,109,85,100,534
+7,Squirtle,Water,,1,44,48,65,50,64,43,314
+8,Wartortle,Water,,1,59,63,80,65,80,58,405
+9,Blastoise,Water,,1,79,83,100,85,105,78,530
