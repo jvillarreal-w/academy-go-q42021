@@ -35,6 +35,7 @@ func readInternalDataSource(fileName string) ([][]string, error) {
 	return rows[1:], nil
 }
 
+// A lot of repetition in these, would appreciate some suggestions.
 func (pr *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, error) {
 	rows, err := readInternalDataSource(common.InternalDataSourcePath)
 
