@@ -5,6 +5,7 @@ import (
 
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
 	"github.com/jvillarreal-w/academy-go-q42021/usecase/interactor"
+	u "github.com/jvillarreal-w/academy-go-q42021/utils"
 )
 
 type pokemonController struct {
@@ -25,6 +26,7 @@ func (pc *pokemonController) GetPokemon(c Context) error {
 
 	p, err := pc.pokemonInteractor.Get(p)
 	if err != nil {
+		u.ErrorLogger.Printf("All Pokémon could not be fetched: %v", err)
 		return err
 	}
 
@@ -38,10 +40,12 @@ func (pc *pokemonController) GetPokemonById(c Context) error {
 	p, err := pc.pokemonInteractor.GetById(p, id)
 
 	if err != nil {
+		u.ErrorLogger.Printf("Pokémon by ID could not be fetched: %v", err)
 		return err
 	}
 
 	if p == nil {
+		u.ErrorLogger.Printf("Pokémon by ID could not be found: %v", err)
 		return c.JSON(http.StatusNotFound, p)
 	}
 

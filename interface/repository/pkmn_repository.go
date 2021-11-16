@@ -9,6 +9,7 @@ import (
 	"github.com/jvillarreal-w/academy-go-q42021/common"
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
 	"github.com/jvillarreal-w/academy-go-q42021/usecase/repository"
+	u "github.com/jvillarreal-w/academy-go-q42021/utils"
 )
 
 type pokemonRepository struct {
@@ -22,6 +23,7 @@ func readInternalDataSource(fileName string) ([][]string, error) {
 	f, err := os.Open(fileName)
 
 	if err != nil {
+		u.ErrorLogger.Printf("Data source could not be opened: %v", err)
 		return nil, err
 	}
 	fmt.Println("Successfully opened CSV file")
@@ -29,7 +31,7 @@ func readInternalDataSource(fileName string) ([][]string, error) {
 
 	rows, err := csv.NewReader(f).ReadAll()
 	if err != nil {
-		fmt.Println(err)
+		u.ErrorLogger.Printf("Data source content could not be read: %v", err)
 		return nil, err
 	}
 
@@ -48,54 +50,63 @@ func (pr *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, erro
 		id, err := strconv.ParseUint(row[0], 10, 32)
 
 		if err != nil {
+			u.ErrorLogger.Printf("Invalid attribute ID: %v", err)
 			return nil, err
 		}
 
 		gen, err := strconv.ParseUint(row[4], 10, 32)
 
 		if err != nil {
+			u.ErrorLogger.Printf("Invalid attribute Generation: %v", err)
 			return nil, err
 		}
 
 		hp, err := strconv.ParseUint(row[5], 10, 32)
 
 		if err != nil {
+			u.ErrorLogger.Printf("Invalid attribute HP: %v", err)
 			return nil, err
 		}
 
 		atk, err := strconv.ParseUint(row[6], 10, 32)
 
 		if err != nil {
+			u.ErrorLogger.Printf("Invalid attribute Attack: %v", err)
 			return nil, err
 		}
 
 		def, err := strconv.ParseUint(row[7], 10, 32)
 
 		if err != nil {
+			u.ErrorLogger.Printf("Invalid attribute Defense: %v", err)
 			return nil, err
 		}
 
 		spa, err := strconv.ParseUint(row[8], 10, 32)
 
 		if err != nil {
+			u.ErrorLogger.Printf("Invalid attribute Special Attack: %v", err)
 			return nil, err
 		}
 
 		spd, err := strconv.ParseUint(row[9], 10, 32)
 
 		if err != nil {
+			u.ErrorLogger.Printf("Invalid attribute Special Defense: %v", err)
 			return nil, err
 		}
 
 		spe, err := strconv.ParseUint(row[10], 10, 32)
 
 		if err != nil {
+			u.ErrorLogger.Printf("Invalid attribute Speed: %v", err)
 			return nil, err
 		}
 
 		bst, err := strconv.ParseUint(row[11], 10, 32)
 
 		if err != nil {
+			u.ErrorLogger.Printf("Invalid attribute Base Stat Total: %v", err)
 			return nil, err
 		}
 
