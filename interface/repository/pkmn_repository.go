@@ -30,6 +30,7 @@ func readInternalDataSource(fileName string) ([][]string, error) {
 	rows, err := csv.NewReader(f).ReadAll()
 	if err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
 
 	return rows[1:], nil

@@ -19,17 +19,9 @@ func NewPokemonInteractor(r repository.PokemonRepository) PokemonInteractor {
 }
 
 func (ps *pokemonInteractor) Get(p []*model.Pokemon) ([]*model.Pokemon, error) {
-	p, err := ps.PokemonRepository.FindAll(p)
-	if err != nil {
-		return nil, err
-	}
-	return p, nil
+	return ps.PokemonRepository.FindAll(p)
 }
 
 func (pi *pokemonInteractor) GetById(p *model.Pokemon, id string) (*model.Pokemon, error) {
-	p, err := pi.PokemonRepository.FindById(p, id)
-	if err != nil {
-		return nil, err
-	}
-	return p, nil
+	return pi.PokemonRepository.FindById(p, id)
 }
