@@ -13,6 +13,7 @@ import (
 )
 
 type pokemonRepository struct {
+	FilePath string
 }
 
 func NewPokemonRepository() repository.PokemonRepository {
