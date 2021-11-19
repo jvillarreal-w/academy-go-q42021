@@ -135,15 +135,12 @@ func (pr *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, erro
 }
 
 func (pr *pokemonRepository) FindById(p []*model.Pokemon, id string) (*model.Pokemon, error) {
-	pkmnId, err := strconv.ParseUint(id, 10, 32)
-
-	if err != nil {
-		return nil, err
-	}
+	pkmnId, _ := strconv.ParseUint(id, 10, 32)
 
 	pkmnList, err := pr.FindAll(p)
 
 	if err != nil {
+		u.ErrorLogger.Panicln("Pokemon list could not be fetched.")
 		return nil, err
 	}
 
