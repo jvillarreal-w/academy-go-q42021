@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
 	"github.com/jvillarreal-w/academy-go-q42021/usecase/interactor"
@@ -34,20 +35,22 @@ func (pc *pokemonController) GetPokemon(c Context) error {
 }
 
 func (pc *pokemonController) GetPokemonById(c Context) error {
-	var p *model.Pokemon
+	var p []*model.Pokemon
 	id := c.Param("id")
-
-	p, err := pc.pokemonInteractor.GetById(p, id)
+	// Checking ID validity.
+	_, err := strconv.Atoi(id)
 
 	if err != nil {
-		u.ErrorLogger.Printf("Pokémon by ID could not be fetched: %v", err)
+		u.ErrorLogger.Printf("Invalid Pokemon ID: %v", err)
 		return err
 	}
 
-	if p == nil {
-		u.ErrorLogger.Printf("Pokémon by ID could not be found: %v", err)
+	pkmn, err := pc.pokemonInteractor.GetById(p, id)
+
+	if pkmn == nil {
+		u.ErrorLogger.Printf("Pokémon could not be found by ID: %v", err)
 		return c.JSON(http.StatusNotFound, p)
 	}
 
-	return c.JSON(http.StatusOK, p)
+	return c.JSON(http.StatusOK, pkmn)
 }
