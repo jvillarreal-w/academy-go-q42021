@@ -1,29 +1,37 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
+	"github.com/jvillarreal-w/academy-go-q42021/interface/context"
+	"github.com/jvillarreal-w/academy-go-q42021/interface/external"
 	"github.com/jvillarreal-w/academy-go-q42021/usecase/interactor"
 	u "github.com/jvillarreal-w/academy-go-q42021/utils"
 )
 
 type pokemonController struct {
 	pokemonInteractor interactor.PokemonInteractor
+	pokemonExternal   external.PokemonExternal
 }
 
 type PokemonController interface {
-	GetPokemon(c Context) error
-	GetPokemonById(c Context) error
+	GetPokemon(c context.Context) error
+	GetPokemonById(c context.Context) error
 }
 
-func NewPokemonController(pi interactor.PokemonInteractor) PokemonController {
-	return &pokemonController{pi}
+func NewPokemonController(pi interactor.PokemonInteractor, pe external.PokemonExternal) PokemonController {
+	return &pokemonController{pi, pe}
 }
 
-func (pc *pokemonController) GetPokemon(c Context) error {
+func (pc *pokemonController) GetPokemon(c context.Context) error {
 	var p []*model.Pokemon
+
+	external_pkmn, _ := external.NewPokemonExternal().GetExternalPokemon(p, c)
+
+	fmt.Printf("%v", external_pkmn)
 
 	p, err := pc.pokemonInteractor.Get(p)
 	if err != nil {
@@ -34,7 +42,7 @@ func (pc *pokemonController) GetPokemon(c Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-func (pc *pokemonController) GetPokemonById(c Context) error {
+func (pc *pokemonController) GetPokemonById(c context.Context) error {
 	var p []*model.Pokemon
 	id := c.Param("id")
 	// Checking ID validity.
