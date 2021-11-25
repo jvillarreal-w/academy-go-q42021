@@ -30,7 +30,7 @@ func (pc *pokemonController) GetPokemon(c context.Context) error {
 	var p []*model.Pokemon
 
 	external_pkmn, _ := external.NewPokemonExternal().GetExternalPokemon(p, c)
-
+	external.NewPokemonExternal().SaveExternalPokemon(external_pkmn)
 	fmt.Printf("%v", external_pkmn)
 
 	p, err := pc.pokemonInteractor.Get(p)

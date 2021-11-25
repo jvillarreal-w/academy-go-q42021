@@ -1,10 +1,12 @@
 package external
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/jvillarreal-w/academy-go-q42021/domain/external"
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
@@ -19,7 +21,7 @@ type pokemonExternal struct {
 
 type PokemonExternal interface {
 	GetExternalPokemon(p []*model.Pokemon, c context.Context) ([]*model.Pokemon, error)
-	//SaveExternalPokemon([]*model.Pokemon)
+	SaveExternalPokemon([]*model.Pokemon)
 }
 
 func NewPokemonExternal() PokemonExternal {
@@ -27,7 +29,7 @@ func NewPokemonExternal() PokemonExternal {
 }
 
 func (pe *pokemonExternal) GetExternalPokemon(p []*model.Pokemon, c context.Context) ([]*model.Pokemon, error) {
-	request, err := http.Get(fmt.Sprintf("%v?limit=12", url))
+	request, err := http.Get(fmt.Sprintf("%v?limit=151", url))
 
 	if err != nil {
 		u.ErrorLogger.Println("External resource is not reachable")
@@ -111,6 +113,22 @@ func (pe *pokemonExternal) GetExternalPokemon(p []*model.Pokemon, c context.Cont
 		}
 	}
 	return p, nil
+}
+
+func (pe *pokemonExternal) SaveExternalPokemon(p []*model.Pokemon) {
+	csvFile, err := os.Create("pkmn.csv")
+
+	if err != nil {
+		u.ErrorLogger.Printf("Failed creating CSV file: %s", err)
+	}
+
+	csvWriter := csv.NewWriter(csvFile)
+	csvWriter.Write([]string{"ID", "Name", "Primary Type", "Secondary Type", "Generation", "HP", "Attack", "Defense", "Special Attack", "Special Defense", "Speed", "Base Stat Total"})
+	for _, pkmnRow := range p {
+		_ = csvWriter.Write(pkmnRow.ToStringSlice())
+	}
+	csvWriter.Flush()
+	csvFile.Close()
 }
 
 func getBST(s []external.PokemonExternalStats) uint64 {

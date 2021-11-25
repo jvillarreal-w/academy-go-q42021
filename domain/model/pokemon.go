@@ -1,5 +1,7 @@
 package model
 
+import "strconv"
+
 type Pokemon struct {
 	ID            uint64 `json:"id"`
 	Name          string `json:"name"`
@@ -17,4 +19,21 @@ type Stats struct {
 	SpecialDefense uint64 `json:"special_defense"`
 	Speed          uint64 `json:"speed"`
 	BaseStatTotal  uint64 `json:"base_stat_total"`
+}
+
+func (p *Pokemon) ToStringSlice() []string {
+	return []string{
+		strconv.Itoa(int(p.ID)),
+		p.Name,
+		p.PrimaryType,
+		p.SecondaryType,
+		strconv.Itoa(int(p.Generation)),
+		strconv.Itoa(int(p.Stats.HP)),
+		strconv.Itoa(int(p.Stats.Attack)),
+		strconv.Itoa(int(p.Stats.Defense)),
+		strconv.Itoa(int(p.Stats.SpecialAttack)),
+		strconv.Itoa(int(p.Stats.SpecialDefense)),
+		strconv.Itoa(int(p.Stats.Speed)),
+		strconv.Itoa(int(p.Stats.BaseStatTotal)),
+	}
 }
