@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/jvillarreal-w/academy-go-q42021/common"
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
 	"github.com/jvillarreal-w/academy-go-q42021/usecase/repository"
 	u "github.com/jvillarreal-w/academy-go-q42021/utils"
@@ -16,8 +15,8 @@ type pokemonRepository struct {
 	FilePath string
 }
 
-func NewPokemonRepository() repository.PokemonRepository {
-	return &pokemonRepository{}
+func NewPokemonRepository(path string) repository.PokemonRepository {
+	return &pokemonRepository{FilePath: path}
 }
 
 func readInternalDataSource(fileName string) ([][]string, error) {
@@ -39,9 +38,8 @@ func readInternalDataSource(fileName string) ([][]string, error) {
 	return rows[1:], nil
 }
 
-// A lot of repetition in these, would appreciate some suggestions.
 func (pr *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, error) {
-	rows, err := readInternalDataSource(common.InternalDataSourcePath)
+	rows, err := readInternalDataSource(pr.FilePath)
 
 	if err != nil {
 		return nil, err
@@ -140,7 +138,7 @@ func (pr *pokemonRepository) FindById(p []*model.Pokemon, id string) (*model.Pok
 	pkmnList, err := pr.FindAll(p)
 
 	if err != nil {
-		u.ErrorLogger.Panicln("Pokemon list could not be fetched.")
+		u.ErrorLogger.Println("Pokemon list could not be fetched.")
 		return nil, err
 	}
 

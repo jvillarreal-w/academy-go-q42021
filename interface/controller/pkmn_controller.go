@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -31,7 +30,6 @@ func (pc *pokemonController) GetPokemon(c context.Context) error {
 
 	external_pkmn, _ := external.NewPokemonExternal().GetExternalPokemon(p, c)
 	external.NewPokemonExternal().SaveExternalPokemon(external_pkmn)
-	fmt.Printf("%v", external_pkmn)
 
 	p, err := pc.pokemonInteractor.Get(p)
 	if err != nil {

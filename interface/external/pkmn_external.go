@@ -29,7 +29,7 @@ func NewPokemonExternal() PokemonExternal {
 }
 
 func (pe *pokemonExternal) GetExternalPokemon(p []*model.Pokemon, c context.Context) ([]*model.Pokemon, error) {
-	request, err := http.Get(fmt.Sprintf("%v?limit=151", url))
+	request, err := http.Get(fmt.Sprintf("%v?limit=1", url))
 
 	if err != nil {
 		u.ErrorLogger.Println("External resource is not reachable")

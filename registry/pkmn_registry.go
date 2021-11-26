@@ -1,6 +1,7 @@
 package registry
 
 import (
+	"github.com/jvillarreal-w/academy-go-q42021/common"
 	"github.com/jvillarreal-w/academy-go-q42021/interface/controller"
 	"github.com/jvillarreal-w/academy-go-q42021/interface/external"
 	ir "github.com/jvillarreal-w/academy-go-q42021/interface/repository"
@@ -17,7 +18,7 @@ func (r *registry) NewPokemonInteractor() interactor.PokemonInteractor {
 }
 
 func (r *registry) NewPokemonRepository() ur.PokemonRepository {
-	return ir.NewPokemonRepository()
+	return ir.NewPokemonRepository(common.InternalDataSourcePath)
 }
 
 func (r *registry) NewPokemonExternal() external.PokemonExternal {
