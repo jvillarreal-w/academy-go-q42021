@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
-	"github.com/jvillarreal-w/academy-go-q42021/interface/context"
 	"github.com/jvillarreal-w/academy-go-q42021/interface/external"
+	"github.com/jvillarreal-w/academy-go-q42021/interface/icontext"
 	"github.com/jvillarreal-w/academy-go-q42021/usecase/interactor"
 	u "github.com/jvillarreal-w/academy-go-q42021/utils"
 )
@@ -17,21 +17,27 @@ type pokemonController struct {
 }
 
 type PokemonController interface {
-	GetPokemon(c context.Context) error
-	GetPokemonById(c context.Context) error
+	GetPokemon(c icontext.IContext) error
+	GetPokemonById(c icontext.IContext) error
 }
 
 func NewPokemonController(pi interactor.PokemonInteractor, pe external.PokemonExternal) PokemonController {
 	return &pokemonController{pi, pe}
 }
 
-func (pc *pokemonController) GetPokemon(c context.Context) error {
+func (pc *pokemonController) GetPokemon(c icontext.IContext) error {
 	var p []*model.Pokemon
 
-	external_pkmn, _ := external.NewPokemonExternal().GetExternalPokemon(p, c)
-	external.NewPokemonExternal().SaveExternalPokemon(external_pkmn)
+	external_module := external.NewPokemonExternal()
 
-	p, err := pc.pokemonInteractor.Get(p)
+	external_pkmn, err := external_module.GetExternalPokemon(p, c)
+	if err != nil {
+		u.ErrorLogger.Printf("External Pokemon could not be fetched: %s", err)
+		return err
+	}
+	external_module.SaveExternalPokemon(external_pkmn)
+
+	p, err = pc.pokemonInteractor.Get(p)
 	if err != nil {
 		u.ErrorLogger.Printf("All Pokémon could not be fetched: %v", err)
 		return err
@@ -40,7 +46,7 @@ func (pc *pokemonController) GetPokemon(c context.Context) error {
 	return c.JSON(http.StatusOK, p)
 }
 
-func (pc *pokemonController) GetPokemonById(c context.Context) error {
+func (pc *pokemonController) GetPokemonById(c icontext.IContext) error {
 	var p []*model.Pokemon
 	id := c.Param("id")
 	// Checking ID validity.

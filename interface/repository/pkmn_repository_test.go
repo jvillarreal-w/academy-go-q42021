@@ -1,12 +1,12 @@
 package repository
 
 import (
-	"strings"
+	"fmt"
 	"testing"
 
 	"github.com/jvillarreal-w/academy-go-q42021/common"
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
-	u "github.com/jvillarreal-w/academy-go-q42021/utils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPokemonRepository_FindAll(t *testing.T) {
@@ -14,9 +14,9 @@ func TestPokemonRepository_FindAll(t *testing.T) {
 	rows, _ := readInternalDataSource(common.TestDataSourcePath)
 	var p []*model.Pokemon
 
-	if p, _ = pr.FindAll(p); len(p) != len(rows) {
-		t.Errorf("Expected: %v but got: %v", len(rows), len(p))
-	}
+	p, _ = pr.FindAll(p)
+
+	assert.Equal(t, len(p), len(rows), fmt.Sprintf("Expected %v but got %v", len(rows), len(p)))
 }
 
 func TestPokemonRepository_FindById(t *testing.T) {
@@ -26,8 +26,6 @@ func TestPokemonRepository_FindById(t *testing.T) {
 	pkmn, _ := pr.FindAll(p)
 
 	pid, _ := pr.FindById(pkmn, "1")
-	u.GeneralLogger.Printf("%+v", pid)
-	if strings.Compare(pid.Name, expected) != 0 {
-		t.Errorf("Expected: %s but got: %s", expected, pid.Name)
-	}
+
+	assert.Equal(t, pid.Name, expected, fmt.Sprintf("Expected %v but got %v", pid.Name, expected))
 }

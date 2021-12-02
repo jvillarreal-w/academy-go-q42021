@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/jvillarreal-w/academy-go-q42021/common"
 	"github.com/jvillarreal-w/academy-go-q42021/domain/external"
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
-	"github.com/jvillarreal-w/academy-go-q42021/interface/context"
+	"github.com/jvillarreal-w/academy-go-q42021/interface/icontext"
 	u "github.com/jvillarreal-w/academy-go-q42021/utils"
 )
 
@@ -20,7 +21,7 @@ type pokemonExternal struct {
 }
 
 type PokemonExternal interface {
-	GetExternalPokemon(p []*model.Pokemon, c context.Context) ([]*model.Pokemon, error)
+	GetExternalPokemon(p []*model.Pokemon, c icontext.IContext) ([]*model.Pokemon, error)
 	SaveExternalPokemon([]*model.Pokemon)
 }
 
@@ -28,7 +29,7 @@ func NewPokemonExternal() PokemonExternal {
 	return &pokemonExternal{}
 }
 
-func (pe *pokemonExternal) GetExternalPokemon(p []*model.Pokemon, c context.Context) ([]*model.Pokemon, error) {
+func (pe *pokemonExternal) GetExternalPokemon(p []*model.Pokemon, c icontext.IContext) ([]*model.Pokemon, error) {
 	request, err := http.Get(fmt.Sprintf("%v?limit=50", url))
 
 	if err != nil {
@@ -52,7 +53,8 @@ func (pe *pokemonExternal) GetExternalPokemon(p []*model.Pokemon, c context.Cont
 	for i, val := range response.Results {
 		id := uint64(i + 1)
 
-		details_request, err := http.Get(fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%v/", id))
+		url_values := []interface{}{url, id}
+		details_request, err := http.Get(fmt.Sprintf("%v/%v", url_values...))
 
 		if err != nil {
 			u.ErrorLogger.Printf("External details are not reachable: %s", err)
@@ -116,14 +118,19 @@ func (pe *pokemonExternal) GetExternalPokemon(p []*model.Pokemon, c context.Cont
 }
 
 func (pe *pokemonExternal) SaveExternalPokemon(p []*model.Pokemon) {
-	csvFile, err := os.Create("pkmn.csv")
+	csvFile, err := os.Create(common.InternalDataSourcePath)
 
 	if err != nil {
 		u.ErrorLogger.Printf("Failed creating CSV file: %s", err)
 	}
 
 	csvWriter := csv.NewWriter(csvFile)
-	csvWriter.Write([]string{"ID", "Name", "Primary Type", "Secondary Type", "Generation", "HP", "Attack", "Defense", "Special Attack", "Special Defense", "Speed", "Base Stat Total"})
+	err = csvWriter.Write([]string{"ID", "Name", "Primary Type", "Secondary Type", "Generation", "HP", "Attack", "Defense", "Special Attack", "Special Defense", "Speed", "Base Stat Total"})
+
+	if err != nil {
+		u.ErrorLogger.Printf("Couldn't write into the CSV file: %s", err)
+	}
+
 	for _, pkmnRow := range p {
 		_ = csvWriter.Write(pkmnRow.ToStringSlice())
 	}
