@@ -1,6 +1,6 @@
-package controller
+package icontext
 
-type Context interface {
+type IContext interface {
 	JSON(code int, i interface{}) error
 	Bind(i interface{}) error
 	Param(name string) string
