@@ -12,6 +12,7 @@ func NewRouter(e *echo.Echo, c controller.AppController) *echo.Echo {
 
 	e.GET("/pokemon", func(context echo.Context) error { return c.Pokemon.GetPokemon(context) })
 	e.GET("/pokemon/:id", func(context echo.Context) error { return c.Pokemon.GetPokemonById(context) })
+	e.GET("/pokemon/concurrent", func(context echo.Context) error { return c.Pokemon.GetPokemonConcurrently(context) })
 
 	return e
 }
