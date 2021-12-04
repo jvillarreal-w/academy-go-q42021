@@ -13,11 +13,13 @@ import (
 	u "github.com/jvillarreal-w/academy-go-q42021/utils"
 )
 
-const itemsParam = common.ItemsParam
-const itemsPerWorkerParam = common.ItemsPerWorkerParam
-const typeParam = common.TypeParam
-const odd = common.Odd
-const even = common.Even
+const (
+	itemsParam          = common.ItemsParam
+	itemsPerWorkerParam = common.ItemsPerWorkerParam
+	typeParam           = common.TypeParam
+	odd                 = common.Odd
+	even                = common.Even
+)
 
 type pokemonController struct {
 	pokemonInteractor interactor.PokemonInteractor
@@ -96,6 +98,12 @@ func (pc *pokemonController) GetPokemonConcurrently(c icontext.IContext) error {
 	t := strings.ToLower(c.QueryParam(typeParam))
 	if t != "" && strings.Compare(t, odd) != 0 && strings.Compare(t, even) != 0 {
 		return c.JSON(http.StatusBadRequest, u.ResponseBuilder(http.StatusBadRequest, "query parameter 'type' only supports 'even' and 'odd'"))
+	}
+
+	p, err = pc.pokemonInteractor.GetConcurrently(p, t, items, itemsWorker)
+	if err != nil {
+		u.ErrorLogger.Printf("Pokemon could not be fetched concurrently: %s", err)
+		return c.JSON(http.StatusInternalServerError, u.ResponseBuilder(http.StatusInternalServerError, err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, p)

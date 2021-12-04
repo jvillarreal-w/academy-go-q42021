@@ -11,7 +11,9 @@ import (
 
 func TestPokemonRepository_FindAll(t *testing.T) {
 	pr := NewPokemonRepository(common.TestDataSourcePath)
-	rows, _ := readInternalDataSource(common.TestDataSourcePath)
+	file, _ := openInternalDataSource(common.TestDataSourcePath)
+	reader, _ := getInternalDataSourceReader(file)
+	rows, _ := readData(reader)
 	var p []*model.Pokemon
 
 	p, _ = pr.FindAll(p)

@@ -3,9 +3,12 @@ package repository
 import (
 	"encoding/csv"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
+	"sync"
 
+	"github.com/jvillarreal-w/academy-go-q42021/common"
 	"github.com/jvillarreal-w/academy-go-q42021/domain/model"
 	"github.com/jvillarreal-w/academy-go-q42021/usecase/repository"
 	u "github.com/jvillarreal-w/academy-go-q42021/utils"
@@ -15,11 +18,14 @@ type pokemonRepository struct {
 	FilePath string
 }
 
+var wg sync.WaitGroup
+var lock = new(sync.Mutex)
+
 func NewPokemonRepository(path string) repository.PokemonRepository {
 	return &pokemonRepository{FilePath: path}
 }
 
-func readInternalDataSource(fileName string) ([][]string, error) {
+func openInternalDataSource(fileName string) (*os.File, error) {
 	f, err := os.Open(fileName)
 
 	if err != nil {
@@ -27,24 +33,53 @@ func readInternalDataSource(fileName string) ([][]string, error) {
 		return nil, err
 	}
 	fmt.Println("Successfully opened CSV file")
-	defer f.Close()
 
-	rows, err := csv.NewReader(f).ReadAll()
-	if err != nil {
-		u.ErrorLogger.Printf("Data source content could not be read: %v", err)
+	return f, err
+}
+
+func getInternalDataSourceReader(file *os.File) (*csv.Reader, error) {
+	r := csv.NewReader(file)
+	r.FieldsPerRecord = -1
+
+	if _, err := r.Read(); err != nil {
+		u.ErrorLogger.Print("Line could not be read.")
 		return nil, err
 	}
+	return r, nil
+}
 
-	return rows[1:], nil
+func readData(reader *csv.Reader) ([][]string, error) {
+	rows, err := reader.ReadAll()
+
+	return rows, err
 }
 
 func (pr *pokemonRepository) FindAll(p []*model.Pokemon) ([]*model.Pokemon, error) {
-	rows, err := readInternalDataSource(pr.FilePath)
+	file, err := openInternalDataSource(pr.FilePath)
 
 	if err != nil {
+		u.ErrorLogger.Println("File could not be open.")
 		return nil, err
 	}
 
+	reader, err := getInternalDataSourceReader(file)
+
+	if err != nil {
+		u.ErrorLogger.Println("Reader could not be obtained.")
+		return nil, err
+	}
+
+	rows, err := readData(reader)
+
+	if err != nil {
+		u.ErrorLogger.Println("Records could not be read.")
+		return nil, err
+	}
+
+	return parsePokemon(p, rows)
+}
+
+func parsePokemon(p []*model.Pokemon, rows [][]string) ([]*model.Pokemon, error) {
 	for _, row := range rows {
 		id, err := strconv.ParseUint(row[0], 10, 32)
 
@@ -151,4 +186,81 @@ func (pr *pokemonRepository) FindById(p []*model.Pokemon, id string) (*model.Pok
 		return pkmn, nil
 	}
 	return nil, err
+}
+
+func worker(r *csv.Reader, t string, itemsWorker int64, results chan<- []string) {
+	defer wg.Done()
+	var lines int64
+	for {
+		if lines == itemsWorker {
+			break
+		}
+		lock.Lock()
+		line, err := r.Read()
+		lock.Unlock()
+		if err == io.EOF {
+			break
+		}
+		if len(line) != 12 {
+			continue
+		}
+
+		pid, _ := strconv.ParseUint(line[0], 10, 32)
+		if oddEvenCriteriaMet(t, pid) {
+			results <- line
+			lines++
+		}
+	}
+}
+
+func oddEvenCriteriaMet(t string, pid uint64) bool {
+	switch t {
+	case common.Odd:
+		return int(pid)%2 != 0
+	case common.Even:
+		return int(pid)%2 == 0
+	default:
+		u.ErrorLogger.Println("Default case in odd/even criteria was entered.")
+		return true
+	}
+
+}
+
+func readDataConcurrently(fileName string, p []*model.Pokemon, t string, items, itemsWorker int64) ([]*model.Pokemon, error) {
+	var result [][]string
+	lines := make(chan []string, items)
+	workers := items / itemsWorker
+
+	f, err := openInternalDataSource(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	defer f.Close()
+
+	r, err := getInternalDataSourceReader(f)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for w := int64(0); w < workers; w++ {
+		wg.Add(1)
+		go worker(r, t, itemsWorker, lines)
+	}
+
+	go func(lines chan []string) {
+		wg.Wait()
+		close(lines)
+	}(lines)
+
+	for line := range lines {
+		result = append(result, line)
+	}
+
+	return parsePokemon(p, result)
+}
+
+func (pr *pokemonRepository) FindAllConcurrently(p []*model.Pokemon, t string, items, itemsWorker int64) ([]*model.Pokemon, error) {
+	return readDataConcurrently(pr.FilePath, p, t, items, itemsWorker)
 }
