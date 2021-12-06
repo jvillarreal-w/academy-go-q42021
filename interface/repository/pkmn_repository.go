@@ -18,7 +18,7 @@ type pokemonRepository struct {
 	FilePath string
 }
 
-var wg sync.WaitGroup
+//var wg sync.WaitGroup
 var lock = new(sync.Mutex)
 
 func NewPokemonRepository(path string) repository.PokemonRepository {
@@ -188,7 +188,7 @@ func (pr *pokemonRepository) FindById(p []*model.Pokemon, id string) (*model.Pok
 	return nil, err
 }
 
-func worker(r *csv.Reader, t string, itemsWorker int64, results chan<- []string) {
+func worker(r *csv.Reader, t string, itemsWorker int64, results chan<- []string, wg *sync.WaitGroup) {
 	defer wg.Done()
 	var lines int64
 	for {
@@ -205,7 +205,10 @@ func worker(r *csv.Reader, t string, itemsWorker int64, results chan<- []string)
 			continue
 		}
 
-		pid, _ := strconv.ParseUint(line[0], 10, 32)
+		pid, err := strconv.ParseUint(line[0], 10, 32)
+		if err != nil {
+			u.ErrorLogger.Println("Failed to convert ID to uint.")
+		}
 		if oddEvenCriteriaMet(t, pid) {
 			results <- line
 			lines++
@@ -228,6 +231,7 @@ func oddEvenCriteriaMet(t string, pid uint64) bool {
 
 func readDataConcurrently(fileName string, p []*model.Pokemon, t string, items, itemsWorker int64) ([]*model.Pokemon, error) {
 	var result [][]string
+	wg := new(sync.WaitGroup)
 	lines := make(chan []string, items)
 	workers := items / itemsWorker
 
@@ -246,7 +250,7 @@ func readDataConcurrently(fileName string, p []*model.Pokemon, t string, items, 
 
 	for w := int64(0); w < workers; w++ {
 		wg.Add(1)
-		go worker(r, t, itemsWorker, lines)
+		go worker(r, t, itemsWorker, lines, wg)
 	}
 
 	go func(lines chan []string) {

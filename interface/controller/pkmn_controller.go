@@ -13,14 +13,6 @@ import (
 	u "github.com/jvillarreal-w/academy-go-q42021/utils"
 )
 
-const (
-	itemsParam          = common.ItemsParam
-	itemsPerWorkerParam = common.ItemsPerWorkerParam
-	typeParam           = common.TypeParam
-	odd                 = common.Odd
-	even                = common.Even
-)
-
 type pokemonController struct {
 	pokemonInteractor interactor.PokemonInteractor
 	pokemonExternal   external.PokemonExternal
@@ -81,13 +73,13 @@ func (pc *pokemonController) GetPokemonById(c icontext.IContext) error {
 func (pc *pokemonController) GetPokemonConcurrently(c icontext.IContext) error {
 	var p []*model.Pokemon
 
-	items, err := strconv.ParseInt(c.QueryParam(itemsParam), 10, 64)
+	items, err := strconv.ParseInt(c.QueryParam(common.ItemsParam), 10, 64)
 	if err != nil || items < 1 {
 		return c.JSON(http.StatusBadRequest, u.ResponseBuilder(http.StatusBadRequest, "query parameter 'items' must be numeric and greater than 0"))
 	}
 
-	itemsWorker, err := strconv.ParseInt(c.QueryParam(itemsPerWorkerParam), 10, 64)
-	if err != nil || itemsWorker == 0 {
+	itemsWorker, err := strconv.ParseInt(c.QueryParam(common.ItemsPerWorkerParam), 10, 64)
+	if err != nil || itemsWorker < 1 {
 		return c.JSON(http.StatusBadRequest, u.ResponseBuilder(http.StatusBadRequest, "query parameter 'items_per_worker' must be numeric and greater than 0"))
 	}
 
@@ -95,8 +87,8 @@ func (pc *pokemonController) GetPokemonConcurrently(c icontext.IContext) error {
 		return c.JSON(http.StatusBadRequest, u.ResponseBuilder(http.StatusBadRequest, "'items_per_worker' parameter shouldn't have a greater value than 'items'"))
 	}
 
-	t := strings.ToLower(c.QueryParam(typeParam))
-	if t != "" && strings.Compare(t, odd) != 0 && strings.Compare(t, even) != 0 {
+	t := strings.ToLower(c.QueryParam(common.TypeParam))
+	if t != "" && t != common.Odd && t != common.Even {
 		return c.JSON(http.StatusBadRequest, u.ResponseBuilder(http.StatusBadRequest, "query parameter 'type' only supports 'even' and 'odd'"))
 	}
 
