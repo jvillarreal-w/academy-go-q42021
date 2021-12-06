@@ -18,7 +18,6 @@ type pokemonRepository struct {
 	FilePath string
 }
 
-//var wg sync.WaitGroup
 var lock = new(sync.Mutex)
 
 func NewPokemonRepository(path string) repository.PokemonRepository {
